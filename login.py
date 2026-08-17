@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-B站扫码登录脚本
+B站扫码登录脚本 1
 本地运行，扫码后保存Cookie到cookie.json，推送到GitHub
 """
 
