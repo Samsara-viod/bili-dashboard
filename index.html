@@ -3,30 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bilibili Data Dashboard</title>
+    <title>Bilibili Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         :root {
-            --bg: #0a0e17;
-            --bg-card: rgba(17, 24, 39, 0.85);
-            --border: rgba(255, 255, 255, 0.06);
-            --text: #e2e8f0;
-            --text2: #94a3b8;
-            --text3: #64748b;
-            --blue: #00d4ff;
-            --purple: #7b2ff7;
-            --pink: #f472b6;
-            --green: #34d399;
-            --orange: #fb923c;
-            --red: #f87171;
-            --mono: 'JetBrains Mono', 'Consolas', 'Menlo', monospace;
+            --bg: #f5f5f7;
+            --bg-card: rgba(255, 255, 255, 0.8);
+            --bg-card-hover: rgba(255, 255, 255, 0.95);
+            --border: rgba(0, 0, 0, 0.06);
+            --text: #1d1d1f;
+            --text2: #6e6e73;
+            --text3: #86868b;
+            --blue: #0071e3;
+            --purple: #5856d6;
+            --pink: #ff2d55;
+            --green: #34c759;
+            --orange: #ff9500;
+            --red: #ff3b30;
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+            --shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --radius: 18px;
+            --radius-sm: 12px;
+            --mono: 'SF Mono', 'JetBrains Mono', 'Consolas', monospace;
+            --sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', 'PingFang SC', sans-serif;
         }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            font-family: var(--sans);
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
         }
 
         /* 导航 */
@@ -37,98 +46,115 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 24px;
-            height: 56px;
-            background: rgba(10, 14, 23, 0.9);
-            backdrop-filter: blur(20px);
+            padding: 0 32px;
+            height: 64px;
+            background: rgba(245, 245, 247, 0.8);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
             border-bottom: 1px solid var(--border);
         }
         .topbar-logo {
-            font-size: 16px;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--blue), var(--purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            color: var(--text);
         }
         .topbar-tabs {
             display: flex;
             gap: 4px;
+            background: rgba(0, 0, 0, 0.04);
+            padding: 4px;
+            border-radius: 12px;
         }
         .topbar-tab {
-            padding: 8px 16px;
+            padding: 8px 18px;
             border-radius: 8px;
-            font-size: 13px;
+            font-size: 14px;
+            font-weight: 500;
             color: var(--text2);
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
             border: none;
             background: none;
         }
-        .topbar-tab:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+        .topbar-tab:hover { color: var(--text); }
         .topbar-tab.active {
-            color: var(--blue);
-            background: rgba(0, 212, 255, 0.1);
+            color: var(--text);
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         }
         .topbar-info {
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 12px;
+            font-size: 13px;
             color: var(--text3);
+            font-weight: 500;
         }
         .topbar-dot {
-            width: 6px; height: 6px;
+            width: 8px; height: 8px;
             border-radius: 50%;
             background: var(--green);
-            box-shadow: 0 0 6px var(--green);
+            box-shadow: 0 0 8px rgba(52, 199, 89, 0.4);
         }
 
         /* 主内容 */
         .main {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 24px;
+            padding: 32px;
         }
-        .tab-content { display: none; }
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
         .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
         /* UP主信息 */
         .profile {
             display: flex;
             align-items: center;
-            gap: 20px;
-            padding: 24px;
+            gap: 24px;
+            padding: 28px 32px;
             background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border);
-            border-radius: 16px;
+            border-radius: var(--radius);
             margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+        .profile:hover {
+            background: var(--bg-card-hover);
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
         }
         .profile-avatar {
-            width: 72px; height: 72px;
+            width: 80px; height: 80px;
             border-radius: 50%;
-            border: 3px solid rgba(0, 212, 255, 0.3);
+            object-fit: cover;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
         }
         .profile-name {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: 700;
-            background: linear-gradient(135deg, var(--blue), var(--purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+            color: var(--text);
         }
         .profile-sign {
-            font-size: 13px;
-            color: var(--text3);
-            margin-top: 4px;
+            font-size: 15px;
+            color: var(--text2);
+            margin-top: 6px;
+            line-height: 1.5;
         }
         .profile-level {
             display: inline-block;
-            padding: 2px 10px;
-            background: rgba(0, 212, 255, 0.1);
-            border: 1px solid rgba(0, 212, 255, 0.25);
-            border-radius: 10px;
-            font-size: 11px;
-            color: var(--blue);
-            margin-top: 6px;
+            padding: 4px 12px;
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+            margin-top: 10px;
         }
 
         /* 数据卡片 */
@@ -139,10 +165,14 @@
             margin-bottom: 24px;
         }
         .stat-card {
-            padding: 20px;
+            padding: 24px;
             background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border);
-            border-radius: 12px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
         }
@@ -150,31 +180,40 @@
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0;
-            height: 2px;
+            height: 3px;
+            border-radius: var(--radius) var(--radius) 0 0;
+        }
+        .stat-card:hover {
+            background: var(--bg-card-hover);
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-4px);
         }
         .stat-card.c-blue::before { background: var(--blue); }
         .stat-card.c-purple::before { background: var(--purple); }
         .stat-card.c-pink::before { background: var(--pink); }
         .stat-card.c-green::before { background: var(--green); }
         .stat-label {
-            font-size: 12px;
+            font-size: 13px;
+            font-weight: 500;
             color: var(--text3);
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
         }
         .stat-num {
-            font-size: 28px;
-            font-weight: 800;
+            font-size: 32px;
+            font-weight: 700;
             font-family: var(--mono);
+            letter-spacing: -1px;
         }
         .c-blue .stat-num { color: var(--blue); }
         .c-purple .stat-num { color: var(--purple); }
         .c-pink .stat-num { color: var(--pink); }
         .c-green .stat-num { color: var(--green); }
         .stat-delta {
-            font-size: 12px;
-            margin-top: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-top: 6px;
             font-family: var(--mono);
         }
         .stat-delta.up { color: var(--green); }
@@ -183,44 +222,52 @@
         /* 图表区域 */
         .chart-section {
             background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 24px;
+            border-radius: var(--radius);
+            padding: 28px;
             margin-bottom: 24px;
+            box-shadow: var(--shadow);
         }
         .chart-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
         .chart-title {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 600;
+            letter-spacing: -0.3px;
         }
         .chart-range {
             display: flex;
             gap: 4px;
+            background: rgba(0, 0, 0, 0.04);
+            padding: 4px;
+            border-radius: 10px;
         }
         .range-btn {
-            padding: 6px 14px;
+            padding: 8px 16px;
             border-radius: 8px;
-            font-size: 12px;
-            color: var(--text3);
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text2);
             cursor: pointer;
-            border: 1px solid var(--border);
+            border: none;
             background: none;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
         }
-        .range-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
+        .range-btn:hover { color: var(--text); }
         .range-btn.active {
-            color: var(--blue);
-            background: rgba(0, 212, 255, 0.1);
-            border-color: rgba(0, 212, 255, 0.3);
+            color: var(--text);
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         }
         .chart-box {
             width: 100%;
-            height: 350px;
+            height: 360px;
         }
 
         /* 视频表格 */
@@ -230,25 +277,28 @@
         }
         .video-table th {
             text-align: left;
-            padding: 12px 16px;
-            font-size: 11px;
+            padding: 14px 18px;
+            font-size: 12px;
+            font-weight: 600;
             color: var(--text3);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             border-bottom: 1px solid var(--border);
-            font-weight: 600;
         }
         .video-table td {
-            padding: 14px 16px;
-            font-size: 13px;
-            border-bottom: 1px solid rgba(255,255,255,0.03);
+            padding: 16px 18px;
+            font-size: 14px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.03);
             vertical-align: middle;
         }
-        .video-table tr:hover td {
-            background: rgba(255,255,255,0.02);
+        .video-table tr {
+            transition: background 0.2s ease;
+        }
+        .video-table tbody tr:hover {
+            background: rgba(0, 0, 0, 0.02);
         }
         .video-table .title-cell {
-            max-width: 300px;
+            max-width: 320px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -256,6 +306,7 @@
         .video-table .num-cell {
             font-family: var(--mono);
             font-weight: 600;
+            font-size: 13px;
         }
         .video-table .blue { color: var(--blue); }
         .video-table .pink { color: var(--pink); }
@@ -263,16 +314,19 @@
         .video-table .orange { color: var(--orange); }
         .video-table .purple { color: var(--purple); }
         .video-cover-small {
-            width: 80px;
-            height: 45px;
+            width: 88px;
+            height: 50px;
             object-fit: cover;
-            border-radius: 6px;
+            border-radius: 8px;
             vertical-align: middle;
-            margin-right: 10px;
+            margin-right: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
         .video-title-link {
             color: var(--text);
             text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
         }
         .video-title-link:hover {
             color: var(--blue);
@@ -285,54 +339,61 @@
         }
         .history-table th {
             text-align: left;
-            padding: 10px 16px;
-            font-size: 11px;
+            padding: 14px 18px;
+            font-size: 12px;
+            font-weight: 600;
             color: var(--text3);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             border-bottom: 1px solid var(--border);
         }
         .history-table td {
-            padding: 10px 16px;
-            font-size: 13px;
+            padding: 14px 18px;
+            font-size: 14px;
             font-family: var(--mono);
-            border-bottom: 1px solid rgba(255,255,255,0.03);
+            font-weight: 500;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.03);
         }
-        .history-table tr:hover td {
-            background: rgba(255,255,255,0.02);
+        .history-table tr {
+            transition: background 0.2s ease;
+        }
+        .history-table tbody tr:hover {
+            background: rgba(0, 0, 0, 0.02);
         }
 
         /* 加载 */
         .loading {
             text-align: center;
-            padding: 60px;
+            padding: 80px;
             color: var(--text3);
         }
         .spinner {
-            width: 32px; height: 32px;
-            border: 3px solid var(--border);
+            width: 40px; height: 40px;
+            border: 3px solid rgba(0, 0, 0, 0.06);
             border-top-color: var(--blue);
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
-            margin: 0 auto 12px;
+            margin: 0 auto 16px;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
         /* 页脚 */
         .footer {
             text-align: center;
-            padding: 24px;
-            font-size: 12px;
+            padding: 32px;
+            font-size: 13px;
             color: var(--text3);
+            font-weight: 500;
         }
 
         /* 响应式 */
         @media (max-width: 768px) {
             .stats-row { grid-template-columns: repeat(2, 1fr); }
-            .profile { flex-direction: column; text-align: center; }
-            .topbar { padding: 0 12px; }
+            .profile { flex-direction: column; text-align: center; padding: 24px; }
+            .topbar { padding: 0 16px; }
             .main { padding: 16px; }
-            .video-table .title-cell { max-width: 150px; }
+            .video-table .title-cell { max-width: 160px; }
+            .chart-section { padding: 20px; }
         }
     </style>
 </head>
@@ -468,7 +529,7 @@
             <div class="chart-section">
                 <div class="chart-header">
                     <div class="chart-title">历史数据记录</div>
-                    <div style="font-size: 12px; color: var(--text3);">
+                    <div style="font-size: 13px; color: var(--text3); font-weight: 500;">
                         共 <span id="historyCount">0</span> 条记录
                     </div>
                 </div>
@@ -494,7 +555,7 @@
     </div>
 
     <footer class="footer">
-        数据每小时自动更新 · 仅自己可见 · Powered by GitHub Actions
+        数据每小时自动更新 · Powered by GitHub Actions
     </footer>
 
     <script>
@@ -545,7 +606,6 @@
             document.getElementById('tab-' + name).classList.add('active');
             event.target.classList.add('active');
 
-            // 切换后resize图表
             setTimeout(() => {
                 overviewChart?.resize();
                 fansTrendChart?.resize();
@@ -559,11 +619,9 @@
         // ============================================================
         async function loadData() {
             try {
-                // 加载最新数据
                 const resp = await fetch('data.json?t=' + Date.now());
                 currentData = await resp.json();
 
-                // 加载历史数据
                 const histResp = await fetch('history.json?t=' + Date.now());
                 historyData = await histResp.json();
 
@@ -578,7 +636,6 @@
         function renderAll() {
             if (!currentData) return;
 
-            // UP主信息
             const profile = document.getElementById('profile');
             profile.style.display = 'flex';
             document.getElementById('avatar').src = currentData.face;
@@ -587,13 +644,11 @@
             document.getElementById('level').textContent = 'LV' + currentData.level;
             document.getElementById('updateTime').textContent = '更新: ' + currentData.update_time;
 
-            // 数据卡片
             document.getElementById('sFans').textContent = fmt(currentData.fans);
             document.getElementById('sViews').textContent = fmt(currentData.total_views);
             document.getElementById('sLikes').textContent = fmt(currentData.total_likes);
             document.getElementById('sVideos').textContent = currentData.video_count;
 
-            // 计算变化量（和上次记录对比）
             if (historyData.length >= 2) {
                 const prev = historyData[historyData.length - 2];
                 const fansDelta = currentData.fans - prev.fans;
@@ -605,7 +660,6 @@
                 setDelta('sLikesDelta', likesDelta, '次');
             }
 
-            // 图表
             renderOverviewChart();
             renderTrendCharts();
             renderVideoTable();
@@ -642,40 +696,45 @@
                 backgroundColor: 'transparent',
                 tooltip: {
                     trigger: 'axis',
-                    backgroundColor: 'rgba(17, 24, 39, 0.95)',
-                    borderColor: 'rgba(255,255,255,0.1)',
-                    textStyle: { color: '#e2e8f0', fontSize: 12 },
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    borderColor: 'rgba(0, 0, 0, 0.08)',
+                    borderWidth: 1,
+                    textStyle: { color: '#1d1d1f', fontSize: 13, fontWeight: 500 },
                     formatter: function(params) {
                         const p = params[0];
-                        return p.axisValue + '<br/>' + label + ': <b>' + fmt(p.value) + '</b>';
+                        return '<div style="font-weight:600;margin-bottom:4px">' + p.axisValue + '</div>' + 
+                               label + ': <span style="color:' + color + ';font-weight:700">' + fmt(p.value) + '</span>';
                     }
                 },
                 grid: { left: '3%', right: '4%', bottom: '10%', top: '8%', containLabel: true },
                 xAxis: {
                     type: 'category',
                     data: data.map(d => fmtDateTime(d.timestamp)),
-                    axisLabel: { color: '#64748b', fontSize: 10, rotate: 30 },
-                    axisLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } },
+                    axisLabel: { color: '#86868b', fontSize: 11, fontWeight: 500, rotate: 30 },
+                    axisLine: { lineStyle: { color: 'rgba(0, 0, 0, 0.06)' } },
+                    axisTick: { show: false },
                 },
                 yAxis: {
                     type: 'value',
-                    axisLabel: { color: '#64748b', fontSize: 10, formatter: v => fmt(v) },
-                    splitLine: { lineStyle: { color: 'rgba(255,255,255,0.04)' } },
+                    axisLabel: { color: '#86868b', fontSize: 11, fontWeight: 500, formatter: v => fmt(v) },
+                    splitLine: { lineStyle: { color: 'rgba(0, 0, 0, 0.04)' } },
+                    axisLine: { show: false },
+                    axisTick: { show: false },
                 },
                 series: [{
                     type: 'line',
                     data: data.map(d => d[key]),
                     smooth: true,
                     symbol: 'circle',
-                    symbolSize: 6,
-                    lineStyle: { color: color, width: 2 },
-                    itemStyle: { color: color },
+                    symbolSize: 8,
+                    lineStyle: { color: color, width: 3 },
+                    itemStyle: { color: color, borderWidth: 2, borderColor: '#fff' },
                     areaStyle: {
                         color: {
                             type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
                             colorStops: [
-                                { offset: 0, color: color.replace(')', ', 0.2)').replace('rgb', 'rgba') },
-                                { offset: 1, color: 'transparent' },
+                                { offset: 0, color: color + '30' },
+                                { offset: 1, color: color + '05' },
                             ]
                         }
                     },
@@ -691,11 +750,11 @@
             if (filtered.length < 2) {
                 overviewChart.setOption({
                     backgroundColor: 'transparent',
-                    title: { text: '数据不足，至少需要2条记录', left: 'center', top: 'center', textStyle: { color: '#64748b', fontSize: 14 } },
+                    title: { text: '数据不足，至少需要2条记录', left: 'center', top: 'center', textStyle: { color: '#86868b', fontSize: 14, fontWeight: 500 } },
                 });
                 return;
             }
-            overviewChart.setOption(makeChartOption(filtered, 'fans', '#00d4ff', '粉丝'));
+            overviewChart.setOption(makeChartOption(filtered, 'fans', '#0071e3', '粉丝'));
         }
 
         function setRange(range, btn) {
@@ -712,18 +771,18 @@
 
             const filtered = filterByRange(historyData, '7d');
             if (filtered.length >= 2) {
-                fansTrendChart.setOption(makeChartOption(filtered, 'fans', '#00d4ff', '粉丝'));
-                viewsTrendChart.setOption(makeChartOption(filtered, 'total_views', '#7b2ff7', '总播放'));
-                likesTrendChart.setOption(makeChartOption(filtered, 'total_likes', '#f472b6', '获赞'));
+                fansTrendChart.setOption(makeChartOption(filtered, 'fans', '#0071e3', '粉丝'));
+                viewsTrendChart.setOption(makeChartOption(filtered, 'total_views', '#5856d6', '总播放'));
+                likesTrendChart.setOption(makeChartOption(filtered, 'total_likes', '#ff2d55', '获赞'));
             }
         }
 
         function setTrendRange(range, key, btn) {
             btn.parentElement.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            b.classList.add('active');
             const filtered = filterByRange(historyData, range);
             const chartMap = { fans: fansTrendChart, views: viewsTrendChart, likes: likesTrendChart };
-            const colorMap = { fans: '#00d4ff', views: '#7b2ff7', likes: '#f472b6' };
+            const colorMap = { fans: '#0071e3', views: '#5856d6', likes: '#ff2d55' };
             const labelMap = { fans: '粉丝', views: '总播放', likes: '获赞' };
             if (filtered.length >= 2) {
                 chartMap[key].setOption(makeChartOption(filtered, key === 'views' ? 'total_views' : key === 'likes' ? 'total_likes' : 'fans', colorMap[key], labelMap[key]));
@@ -737,7 +796,7 @@
             const tbody = document.getElementById('videoTableBody');
             const videos = currentData.videos || [];
             if (videos.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:40px">暂无视频</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:48px">暂无视频</td></tr>';
                 return;
             }
 
@@ -757,7 +816,7 @@
                     <td class="num-cell orange">${fmt(v.like)}</td>
                     <td class="num-cell purple">${fmt(v.favorites)}</td>
                     <td class="num-cell" style="color:var(--orange)">${fmt(v.coin)}</td>
-                    <td style="color:var(--text3);font-size:12px">${dateStr}</td>
+                    <td style="color:var(--text3);font-size:13px;font-weight:500">${dateStr}</td>
                 </tr>`;
             }).join('');
         }
@@ -770,11 +829,10 @@
 
             const tbody = document.getElementById('historyTableBody');
             if (historyData.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:40px">暂无历史记录</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:48px">暂无历史记录</td></tr>';
                 return;
             }
 
-            // 倒序显示（最新在前）
             const reversed = [...historyData].reverse();
 
             tbody.innerHTML = reversed.map((record, idx) => {
