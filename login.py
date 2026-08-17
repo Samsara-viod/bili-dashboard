@@ -14,6 +14,12 @@ from datetime import datetime
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 COOKIE_FILE = os.path.join(BASE_DIR, 'cookie.json')
 
+HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+    'Referer': 'https://www.bilibili.com',
+    'Accept': 'application/json, text/plain, */*',
+}
+
 # ============================================================
 # 扫码登录
 # ============================================================
@@ -24,7 +30,7 @@ def qr_login():
     print("\n[1/3] 正在获取二维码...")
     
     try:
-        resp = requests.get('https://passport.bilibili.com/x/passport-login/web/qrcode/generate', timeout=10)
+        resp = requests.get('https://passport.bilibili.com/x/passport-login/web/qrcode/generate', headers=HEADERS, timeout=10)
         data = resp.json()
         if data.get('code') != 0:
             print(f"✗ 获取二维码失败: {data}")
@@ -61,7 +67,7 @@ def qr_login():
         time.sleep(2)
         try:
             poll_resp = requests.get('https://passport.bilibili.com/x/passport-login/web/qrcode/poll',
-                                    params={'qrcode_key': qr_key}, timeout=10)
+                                    params={'qrcode_key': qr_key}, headers=HEADERS, timeout=10)
             poll_data = poll_resp.json().get('data', {})
             code = poll_data.get('code', -1)
             
