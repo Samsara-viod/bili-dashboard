@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bilibili Data Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #0a0e17;
+            --bg-card: rgba(17, 24, 39, 0.85);
+            --border: rgba(255, 255, 255, 0.06);
+            --text: #e2e8f0;
+            --text2: #94a3b8;
+            --text3: #64748b;
+            --blue: #00d4ff;
+            --purple: #7b2ff7;
+            --pink: #f472b6;
+            --green: #34d399;
+            --orange: #fb923c;
+            --red: #f87171;
+            --mono: 'JetBrains Mono', 'Consolas', 'Menlo', monospace;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* 导航 */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            height: 56px;
+            background: rgba(10, 14, 23, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+        .topbar-logo {
+            font-size: 16px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .topbar-tabs {
+            display: flex;
+            gap: 4px;
+        }
+        .topbar-tab {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--text2);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            background: none;
+        }
+        .topbar-tab:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+        .topbar-tab.active {
+            color: var(--blue);
+            background: rgba(0, 212, 255, 0.1);
+        }
+        .topbar-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text3);
+        }
+        .topbar-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 6px var(--green);
+        }
+
+        /* 主内容 */
+        .main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* UP主信息 */
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 24px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            margin-bottom: 24px;
+        }
+        .profile-avatar {
+            width: 72px; height: 72px;
+            border-radius: 50%;
+            border: 3px solid rgba(0, 212, 255, 0.3);
+        }
+        .profile-name {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .profile-sign {
+            font-size: 13px;
+            color: var(--text3);
+            margin-top: 4px;
+        }
+        .profile-level {
+            display: inline-block;
+            padding: 2px 10px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.25);
+            border-radius: 10px;
+            font-size: 11px;
+            color: var(--blue);
+            margin-top: 6px;
+        }
+
+        /* 数据卡片 */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            padding: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+        }
+        .stat-card.c-blue::before { background: var(--blue); }
+        .stat-card.c-purple::before { background: var(--purple); }
+        .stat-card.c-pink::before { background: var(--pink); }
+        .stat-card.c-green::before { background: var(--green); }
+        .stat-label {
+            font-size: 12px;
+            color: var(--text3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .stat-num {
+            font-size: 28px;
+            font-weight: 800;
+            font-family: var(--mono);
+        }
+        .c-blue .stat-num { color: var(--blue); }
+        .c-purple .stat-num { color: var(--purple); }
+        .c-pink .stat-num { color: var(--pink); }
+        .c-green .stat-num { color: var(--green); }
+        .stat-delta {
+            font-size: 12px;
+            margin-top: 4px;
+            font-family: var(--mono);
+        }
+        .stat-delta.up { color: var(--green); }
+        .stat-delta.down { color: var(--red); }
+
+        /* 图表区域 */
+        .chart-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .chart-range {
+            display: flex;
+            gap: 4px;
+        }
+        .range-btn {
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--text3);
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: none;
+            transition: all 0.2s;
+        }
+        .range-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
+        .range-btn.active {
+            color: var(--blue);
+            background: rgba(0, 212, 255, 0.1);
+            border-color: rgba(0, 212, 255, 0.3);
+        }
+        .chart-box {
+            width: 100%;
+            height: 350px;
+        }
+
+        /* 视频表格 */
+        .video-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .video-table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 11px;
+            color: var(--text3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+        }
+        .video-table td {
+            padding: 14px 16px;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            vertical-align: middle;
+        }
+        .video-table tr:hover td {
+            background: rgba(255,255,255,0.02);
+        }
+        .video-table .title-cell {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .video-table .num-cell {
+            font-family: var(--mono);
+            font-weight: 600;
+        }
+        .video-table .blue { color: var(--blue); }
+        .video-table .pink { color: var(--pink); }
+        .video-table .green { color: var(--green); }
+        .video-table .orange { color: var(--orange); }
+        .video-table .purple { color: var(--purple); }
+        .video-cover-small {
+            width: 80px;
+            height: 45px;
+            object-fit: cover;
+            border-radius: 6px;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+        .video-title-link {
+            color: var(--text);
+            text-decoration: none;
+        }
+        .video-title-link:hover {
+            color: var(--blue);
+        }
+
+        /* 历史对比表 */
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .history-table th {
+            text-align: left;
+            padding: 10px 16px;
+            font-size: 11px;
+            color: var(--text3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--border);
+        }
+        .history-table td {
+            padding: 10px 16px;
+            font-size: 13px;
+            font-family: var(--mono);
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        .history-table tr:hover td {
+            background: rgba(255,255,255,0.02);
+        }
+
+        /* 加载 */
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: var(--text3);
+        }
+        .spinner {
+            width: 32px; height: 32px;
+            border: 3px solid var(--border);
+            border-top-color: var(--blue);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 12px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* 页脚 */
+        .footer {
+            text-align: center;
+            padding: 24px;
+            font-size: 12px;
+            color: var(--text3);
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .profile { flex-direction: column; text-align: center; }
+            .topbar { padding: 0 12px; }
+            .main { padding: 16px; }
+            .video-table .title-cell { max-width: 150px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <nav class="topbar">
+        <div class="topbar-logo">Bilibili Dashboard</div>
+        <div class="topbar-tabs">
+            <button class="topbar-tab active" onclick="switchTab('overview')">概览</button>
+            <button class="topbar-tab" onclick="switchTab('trend')">趋势</button>
+            <button class="topbar-tab" onclick="switchTab('videos')">视频</button>
+            <button class="topbar-tab" onclick="switchTab('history')">历史</button>
+        </div>
+        <div class="topbar-info">
+            <span class="topbar-dot"></span>
+            <span id="updateTime">--</span>
+        </div>
+    </nav>
+
+    <div class="main">
+        <!-- 概览 -->
+        <div class="tab-content active" id="tab-overview">
+            <div class="profile" id="profile" style="display:none">
+                <img class="profile-avatar" id="avatar" src="" alt="">
+                <div>
+                    <div class="profile-name" id="name">--</div>
+                    <div class="profile-sign" id="sign">--</div>
+                    <span class="profile-level" id="level">LV0</span>
+                </div>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-card c-blue">
+                    <div class="stat-label">粉丝数</div>
+                    <div class="stat-num" id="sFans">--</div>
+                    <div class="stat-delta" id="sFansDelta"></div>
+                </div>
+                <div class="stat-card c-purple">
+                    <div class="stat-label">总播放量</div>
+                    <div class="stat-num" id="sViews">--</div>
+                    <div class="stat-delta" id="sViewsDelta"></div>
+                </div>
+                <div class="stat-card c-pink">
+                    <div class="stat-label">获赞数</div>
+                    <div class="stat-num" id="sLikes">--</div>
+                    <div class="stat-delta" id="sLikesDelta"></div>
+                </div>
+                <div class="stat-card c-green">
+                    <div class="stat-label">视频数</div>
+                    <div class="stat-num" id="sVideos">--</div>
+                </div>
+            </div>
+
+            <div class="chart-section">
+                <div class="chart-header">
+                    <div class="chart-title">粉丝增长趋势</div>
+                    <div class="chart-range">
+                        <button class="range-btn active" onclick="setRange('7d', this)">7天</button>
+                        <button class="range-btn" onclick="setRange('30d', this)">30天</button>
+                        <button class="range-btn" onclick="setRange('all', this)">全部</button>
+                    </div>
+                </div>
+                <div class="chart-box" id="overviewChart"></div>
+            </div>
+        </div>
+
+        <!-- 趋势 -->
+        <div class="tab-content" id="tab-trend">
+            <div class="chart-section">
+                <div class="chart-header">
+                    <div class="chart-title">粉丝增长</div>
+                    <div class="chart-range">
+                        <button class="range-btn active" onclick="setTrendRange('7d', 'fans', this)">7天</button>
+                        <button class="range-btn" onclick="setTrendRange('30d', 'fans', this)">30天</button>
+                        <button class="range-btn" onclick="setTrendRange('all', 'fans', this)">全部</button>
+                    </div>
+                </div>
+                <div class="chart-box" id="fansTrendChart"></div>
+            </div>
+            <div class="chart-section">
+                <div class="chart-header">
+                    <div class="chart-title">总播放量增长</div>
+                    <div class="chart-range">
+                        <button class="range-btn active" onclick="setTrendRange('7d', 'views', this)">7天</button>
+                        <button class="range-btn" onclick="setTrendRange('30d', 'views', this)">30天</button>
+                        <button class="range-btn" onclick="setTrendRange('all', 'views', this)">全部</button>
+                    </div>
+                </div>
+                <div class="chart-box" id="viewsTrendChart"></div>
+            </div>
+            <div class="chart-section">
+                <div class="chart-header">
+                    <div class="chart-title">获赞数增长</div>
+                    <div class="chart-range">
+                        <button class="range-btn active" onclick="setTrendRange('7d', 'likes', this)">7天</button>
+                        <button class="range-btn" onclick="setTrendRange('30d', 'likes', this)">30天</button>
+                        <button class="range-btn" onclick="setTrendRange('all', 'likes', this)">全部</button>
+                    </div>
+                </div>
+                <div class="chart-box" id="likesTrendChart"></div>
+            </div>
+        </div>
+
+        <!-- 视频 -->
+        <div class="tab-content" id="tab-videos">
+            <div class="chart-section">
+                <div class="chart-header">
+                    <div class="chart-title">最新视频数据</div>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="video-table" id="videoTable">
+                        <thead>
+                            <tr>
+                                <th>视频</th>
+                                <th>播放</th>
+                                <th>弹幕</th>
+                                <th>评论</th>
+                                <th>点赞</th>
+                                <th>收藏</th>
+                                <th>投币</th>
+                                <th>发布日期</th>
+                            </tr>
+                        </thead>
+                        <tbody id="videoTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 历史 -->
+        <div class="tab-content" id="tab-history">
+            <div class="chart-section">
+                <div class="chart-header">
+                    <div class="chart-title">历史数据记录</div>
+                    <div style="font-size: 12px; color: var(--text3);">
+                        共 <span id="historyCount">0</span> 条记录
+                    </div>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table class="history-table" id="historyTable">
+                        <thead>
+                            <tr>
+                                <th>时间</th>
+                                <th>粉丝</th>
+                                <th>粉丝变化</th>
+                                <th>总播放</th>
+                                <th>播放变化</th>
+                                <th>获赞</th>
+                                <th>视频数</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        数据每小时自动更新 · 仅自己可见 · Powered by GitHub Actions
+    </footer>
+
+    <script>
+        // ============================================================
+        // 全局状态
+        // ============================================================
+        let currentData = null;
+        let historyData = [];
+        let overviewChart = null;
+        let fansTrendChart = null;
+        let viewsTrendChart = null;
+        let likesTrendChart = null;
+        let currentRange = '7d';
+
+        // ============================================================
+        // 工具函数
+        // ============================================================
+        function fmt(num) {
+            if (num === undefined || num === null) return '--';
+            num = Number(num);
+            if (num >= 100000000) return (num / 100000000).toFixed(1) + '亿';
+            if (num >= 10000) return (num / 10000).toFixed(1) + '万';
+            return num.toLocaleString('zh-CN');
+        }
+
+        function fmtDate(ts) {
+            const d = new Date(ts * 1000);
+            return (d.getMonth() + 1) + '/' + d.getDate();
+        }
+
+        function fmtDateTime(ts) {
+            const d = new Date(ts * 1000);
+            return d.toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function fmtDelta(val) {
+            if (val > 0) return '+' + fmt(val);
+            if (val < 0) return fmt(val);
+            return '0';
+        }
+
+        // ============================================================
+        // Tab切换
+        // ============================================================
+        function switchTab(name) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.topbar-tab').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + name).classList.add('active');
+            event.target.classList.add('active');
+
+            // 切换后resize图表
+            setTimeout(() => {
+                overviewChart?.resize();
+                fansTrendChart?.resize();
+                viewsTrendChart?.resize();
+                likesTrendChart?.resize();
+            }, 100);
+        }
+
+        // ============================================================
+        // 数据加载
+        // ============================================================
+        async function loadData() {
+            try {
+                // 加载最新数据
+                const resp = await fetch('data.json?t=' + Date.now());
+                currentData = await resp.json();
+
+                // 加载历史数据
+                const histResp = await fetch('history.json?t=' + Date.now());
+                historyData = await histResp.json();
+
+                renderAll();
+            } catch (e) {
+                console.error('加载失败:', e);
+                document.querySelector('.main').innerHTML =
+                    '<div class="loading">加载失败，请确认 data.json 和 history.json 文件存在</div>';
+            }
+        }
+
+        function renderAll() {
+            if (!currentData) return;
+
+            // UP主信息
+            const profile = document.getElementById('profile');
+            profile.style.display = 'flex';
+            document.getElementById('avatar').src = currentData.face;
+            document.getElementById('name').textContent = currentData.name;
+            document.getElementById('sign').textContent = currentData.sign || '';
+            document.getElementById('level').textContent = 'LV' + currentData.level;
+            document.getElementById('updateTime').textContent = '更新: ' + currentData.update_time;
+
+            // 数据卡片
+            document.getElementById('sFans').textContent = fmt(currentData.fans);
+            document.getElementById('sViews').textContent = fmt(currentData.total_views);
+            document.getElementById('sLikes').textContent = fmt(currentData.total_likes);
+            document.getElementById('sVideos').textContent = currentData.video_count;
+
+            // 计算变化量（和上次记录对比）
+            if (historyData.length >= 2) {
+                const prev = historyData[historyData.length - 2];
+                const fansDelta = currentData.fans - prev.fans;
+                const viewsDelta = currentData.total_views - prev.total_views;
+                const likesDelta = currentData.total_likes - prev.total_likes;
+
+                setDelta('sFansDelta', fansDelta, '人');
+                setDelta('sViewsDelta', viewsDelta, '次');
+                setDelta('sLikesDelta', likesDelta, '次');
+            }
+
+            // 图表
+            renderOverviewChart();
+            renderTrendCharts();
+            renderVideoTable();
+            renderHistoryTable();
+        }
+
+        function setDelta(id, val, unit) {
+            const el = document.getElementById(id);
+            if (val > 0) {
+                el.textContent = '↑ ' + fmt(val) + ' ' + unit;
+                el.className = 'stat-delta up';
+            } else if (val < 0) {
+                el.textContent = '↓ ' + fmt(Math.abs(val)) + ' ' + unit;
+                el.className = 'stat-delta down';
+            } else {
+                el.textContent = '— 无变化';
+                el.className = 'stat-delta';
+            }
+        }
+
+        // ============================================================
+        // 图表渲染
+        // ============================================================
+        function filterByRange(data, range) {
+            if (range === 'all') return data;
+            const now = Date.now() / 1000;
+            const days = range === '7d' ? 7 : 30;
+            const cutoff = now - days * 86400;
+            return data.filter(d => d.timestamp >= cutoff);
+        }
+
+        function makeChartOption(data, key, color, label) {
+            return {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: 'rgba(17, 24, 39, 0.95)',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    textStyle: { color: '#e2e8f0', fontSize: 12 },
+                    formatter: function(params) {
+                        const p = params[0];
+                        return p.axisValue + '<br/>' + label + ': <b>' + fmt(p.value) + '</b>';
+                    }
+                },
+                grid: { left: '3%', right: '4%', bottom: '10%', top: '8%', containLabel: true },
+                xAxis: {
+                    type: 'category',
+                    data: data.map(d => fmtDateTime(d.timestamp)),
+                    axisLabel: { color: '#64748b', fontSize: 10, rotate: 30 },
+                    axisLine: { lineStyle: { color: 'rgba(255,255,255,0.06)' } },
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLabel: { color: '#64748b', fontSize: 10, formatter: v => fmt(v) },
+                    splitLine: { lineStyle: { color: 'rgba(255,255,255,0.04)' } },
+                },
+                series: [{
+                    type: 'line',
+                    data: data.map(d => d[key]),
+                    smooth: true,
+                    symbol: 'circle',
+                    symbolSize: 6,
+                    lineStyle: { color: color, width: 2 },
+                    itemStyle: { color: color },
+                    areaStyle: {
+                        color: {
+                            type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+                            colorStops: [
+                                { offset: 0, color: color.replace(')', ', 0.2)').replace('rgb', 'rgba') },
+                                { offset: 1, color: 'transparent' },
+                            ]
+                        }
+                    },
+                }],
+            };
+        }
+
+        function renderOverviewChart() {
+            if (!overviewChart) {
+                overviewChart = echarts.init(document.getElementById('overviewChart'));
+            }
+            const filtered = filterByRange(historyData, currentRange);
+            if (filtered.length < 2) {
+                overviewChart.setOption({
+                    backgroundColor: 'transparent',
+                    title: { text: '数据不足，至少需要2条记录', left: 'center', top: 'center', textStyle: { color: '#64748b', fontSize: 14 } },
+                });
+                return;
+            }
+            overviewChart.setOption(makeChartOption(filtered, 'fans', '#00d4ff', '粉丝'));
+        }
+
+        function setRange(range, btn) {
+            currentRange = range;
+            btn.parentElement.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderOverviewChart();
+        }
+
+        function renderTrendCharts() {
+            if (!fansTrendChart) fansTrendChart = echarts.init(document.getElementById('fansTrendChart'));
+            if (!viewsTrendChart) viewsTrendChart = echarts.init(document.getElementById('viewsTrendChart'));
+            if (!likesTrendChart) likesTrendChart = echarts.init(document.getElementById('likesTrendChart'));
+
+            const filtered = filterByRange(historyData, '7d');
+            if (filtered.length >= 2) {
+                fansTrendChart.setOption(makeChartOption(filtered, 'fans', '#00d4ff', '粉丝'));
+                viewsTrendChart.setOption(makeChartOption(filtered, 'total_views', '#7b2ff7', '总播放'));
+                likesTrendChart.setOption(makeChartOption(filtered, 'total_likes', '#f472b6', '获赞'));
+            }
+        }
+
+        function setTrendRange(range, key, btn) {
+            btn.parentElement.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const filtered = filterByRange(historyData, range);
+            const chartMap = { fans: fansTrendChart, views: viewsTrendChart, likes: likesTrendChart };
+            const colorMap = { fans: '#00d4ff', views: '#7b2ff7', likes: '#f472b6' };
+            const labelMap = { fans: '粉丝', views: '总播放', likes: '获赞' };
+            if (filtered.length >= 2) {
+                chartMap[key].setOption(makeChartOption(filtered, key === 'views' ? 'total_views' : key === 'likes' ? 'total_likes' : 'fans', colorMap[key], labelMap[key]));
+            }
+        }
+
+        // ============================================================
+        // 视频表格
+        // ============================================================
+        function renderVideoTable() {
+            const tbody = document.getElementById('videoTableBody');
+            const videos = currentData.videos || [];
+            if (videos.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:40px">暂无视频</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = videos.map(v => {
+                const pic = (v.pic || '').replace('http://', 'https://');
+                const date = new Date(v.created * 1000);
+                const dateStr = date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+
+                return `<tr>
+                    <td class="title-cell">
+                        <img class="video-cover-small" src="${pic}@160w_90h_1c.webp" alt="" loading="lazy">
+                        <a class="video-title-link" href="https://www.bilibili.com/video/${v.bvid}" target="_blank">${v.title}</a>
+                    </td>
+                    <td class="num-cell blue">${fmt(v.play)}</td>
+                    <td class="num-cell pink">${fmt(v.video_review)}</td>
+                    <td class="num-cell green">${fmt(v.comment)}</td>
+                    <td class="num-cell orange">${fmt(v.like)}</td>
+                    <td class="num-cell purple">${fmt(v.favorites)}</td>
+                    <td class="num-cell" style="color:var(--orange)">${fmt(v.coin)}</td>
+                    <td style="color:var(--text3);font-size:12px">${dateStr}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        // ============================================================
+        // 历史表格
+        // ============================================================
+        function renderHistoryTable() {
+            document.getElementById('historyCount').textContent = historyData.length;
+
+            const tbody = document.getElementById('historyTableBody');
+            if (historyData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:40px">暂无历史记录</td></tr>';
+                return;
+            }
+
+            // 倒序显示（最新在前）
+            const reversed = [...historyData].reverse();
+
+            tbody.innerHTML = reversed.map((record, idx) => {
+                const prev = idx < reversed.length - 1 ? reversed[idx + 1] : null;
+                const fansDelta = prev ? record.fans - prev.fans : 0;
+                const viewsDelta = prev ? record.total_views - prev.total_views : 0;
+
+                const fansDeltaStr = fansDelta > 0 ? `<span style="color:var(--green)">+${fmt(fansDelta)}</span>` :
+                                     fansDelta < 0 ? `<span style="color:var(--red)">${fmt(fansDelta)}</span>` :
+                                     '<span style="color:var(--text3)">0</span>';
+                const viewsDeltaStr = viewsDelta > 0 ? `<span style="color:var(--green)">+${fmt(viewsDelta)}</span>` :
+                                      viewsDelta < 0 ? `<span style="color:var(--red)">${fmt(viewsDelta)}</span>` :
+                                      '<span style="color:var(--text3)">0</span>';
+
+                return `<tr>
+                    <td style="color:var(--text2)">${record.update_time}</td>
+                    <td style="color:var(--blue)">${fmt(record.fans)}</td>
+                    <td>${fansDeltaStr}</td>
+                    <td style="color:var(--purple)">${fmt(record.total_views)}</td>
+                    <td>${viewsDeltaStr}</td>
+                    <td style="color:var(--pink)">${fmt(record.total_likes)}</td>
+                    <td>${record.video_count}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        // ============================================================
+        // 启动
+        // ============================================================
+        loadData();
+        window.addEventListener('resize', () => {
+            overviewChart?.resize();
+            fansTrendChart?.resize();
+            viewsTrendChart?.resize();
+            likesTrendChart?.resize();
+        });
+    </script>
+</body>
+</html>
