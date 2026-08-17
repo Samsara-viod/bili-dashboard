@@ -1,85 +1,35 @@
 # 📊 B站数据看板
 
-> 自动抓取B站数据，每小时更新一次
+> **但为君故UNTO** 的个人数据看板
+> 
+> 笑和幽默给予我，生命
 
-## 🚀 快速开始
+## 📈 账号数据
 
-### 1. 安装依赖
-
-```bash
-pip install -r requirements.txt
-```
-
-### 2. 扫码登录
-
-```bash
-python login.py
-```
-
-会显示二维码，用B站APP扫码登录。登录成功后Cookie会自动保存到 `cookie.json` 并推送到GitHub。
-
-### 3. 查看数据
-
-等待1-2分钟，GitHub Actions会自动抓取数据并更新这个README页面。
-
-也可以手动触发：
-- 打开仓库 → **Actions** 标签
-- 左侧选 **Fetch Bilibili Data**
-- 右侧点 **Run workflow** → **Run workflow**
-
-## 📁 文件说明
-
-| 文件 | 说明 |
+| 指标 | 数值 |
 |------|------|
-| `login.py` | 本地扫码登录脚本 |
-| `fetch_data.py` | GitHub Actions运行的数据抓取脚本 |
-| `cookie.json` | 登录凭证（自动保存，推送到私有仓库） |
-| `requirements.txt` | Python依赖 |
+| 👥 粉丝数 | **892** |
+| 👁️ 总播放量 | **13.0万** |
+| 👍 获赞数 | **6,052** |
+| 🎬 视频数 | **10** |
 
-## 🔒 安全说明
+## 🎥 最新视频
 
-- 仓库设为 **Private**，只有你自己能看到
-- Cookie保存在私有仓库里，GitHub Actions自动读取
-- Cookie有效期约6个月，失效后重新运行 `python login.py`
-
-## ⚙️ 工作原理
-
-```
-本地运行 python login.py
-    ↓
-扫码登录 → 保存cookie.json
-    ↓
-git push 推送到GitHub（私有仓库）
-    ↓
-GitHub Actions 每小时运行 fetch_data.py
-    ↓
-读取cookie.json → 抓取B站数据 → 更新README.md
-    ↓
-打开GitHub仓库页面 → 直接看数据
-```
-
-## ❓ 常见问题
-
-**Q: Cookie失效了怎么办？**
-
-重新运行 `python login.py`，扫码登录即可。
-
-**Q: 数据没有更新？**
-
-检查 Actions 标签页的运行记录，如果有错误会显示日志。
-
-**Q: 可以修改更新频率吗？**
-
-编辑 `.github/workflows/fetch.yml`，修改 `cron` 表达式：
-```yaml
-schedule:
-  # 每30分钟
-  - cron: '*/30 * * * *'
-  
-  # 每2小时
-  - cron: '0 */2 * * *'
-```
+| 视频 | 播放 | 弹幕 | 评论 | 点赞 | 发布日期 |
+|------|------|------|------|------|----------|
+| [忽闻君名至 恍忆孩时记《凡人》187集解析](https://www.bilibili.com/video/BV1Uebm6xEPb) | 4.2万 | 34 | 87 | 0 | 2026-08-15 |
+| [苟安难独善，唇亡必齿寒《凡人》186集解析](https://www.bilibili.com/video/BV1eAbU6iE9i) | 482 | 2 | 10 | 0 | 2026-08-15 |
+| [太上忘情解析！台阶长度设计以及韩立双手负后的真正理由！《凡人修仙传》1...](https://www.bilibili.com/video/BV1hPMU6VELp) | 2,052 | 20 | 53 | 0 | 2026-08-05 |
+| [火龙开团！令狐和解！《凡人修仙传》184逐帧解析](https://www.bilibili.com/video/BV13V3E6iEx6) | 1,991 | 13 | 92 | 0 | 2026-07-26 |
+| [凡人“老弱病残”并非贬义 出自邓小平《尊重知识，尊重人才》 183 集...](https://www.bilibili.com/video/BV1EogC6JEvx) | 3,518 | 71 | 173 | 0 | 2026-07-22 |
+| [缩地成寸的记载，蒙古包设计，认真探讨魏无涯封印无边海魔气？解析《凡人》...](https://www.bilibili.com/video/BV1GVNV6zET3) | 8,477 | 56 | 220 | 0 | 2026-07-12 |
+| [海上明月图、台词复用彩蛋《凡人》180集最全解析！](https://www.bilibili.com/video/BV1wKT16HEQ5) | 1.4万 | 206 | 411 | 0 | 2026-07-05 |
+| [万字解析虽迟但到！南宫婉偷听子符不在糕点盒，吾鹏也是好人？](https://www.bilibili.com/video/BV1BA756EEYM) | 4,395 | 55 | 112 | 0 | 2026-06-26 |
+| [百年仙途藏匠心｜力挺凡人制作组，理性解析 177 集全部改动](https://www.bilibili.com/video/BV1pXjE6qE11) | 1,459 | 4 | 20 | 0 | 2026-06-20 |
+| [老家的烟花](https://www.bilibili.com/video/BV1TAZUBZEgX) | 104 | 0 | 0 | 0 | 2026-02-17 |
 
 ---
+
+**最后更新**: 2026-08-17 17:34:59
 
 *数据每小时自动更新 · 仓库私有，仅自己可见*
