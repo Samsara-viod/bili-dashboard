@@ -143,6 +143,7 @@ def fetch_data(cookies, mid):
         videos.append({
             'bvid': v.get('bvid', ''),
             'title': v.get('title', ''),
+            'pic': v.get('pic', ''),
             'play': v.get('play', 0),
             'video_review': v.get('video_review', 0),
             'comment': v.get('comment', 0),
