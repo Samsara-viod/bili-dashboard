@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 B站数据抓取脚本（GitHub Actions版）
-从cookie.json读取Cookie，抓取数据后更新README.md
+支持从环境变量或cookie.json读取Cookie
+抓取数据后更新README.md、data.json、history.json
 """
 
 import requests
@@ -20,15 +21,31 @@ API_BASE = 'https://api.bilibili.com'
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 COOKIE_FILE = os.path.join(BASE_DIR, 'cookie.json')
 README_FILE = os.path.join(BASE_DIR, 'README.md')
+DATA_FILE = os.path.join(BASE_DIR, 'data.json')
+HISTORY_FILE = os.path.join(BASE_DIR, 'history.json')
 
 # ============================================================
 # Cookie管理
 # ============================================================
 def load_cookie():
-    """从cookie.json读取Cookie"""
+    """优先从环境变量读取Cookie，否则从cookie.json读取"""
+    # 方式1: 从环境变量读取（GitHub Actions Secrets）
+    cookie_json_str = os.environ.get('BILIBILI_COOKIE')
+    if cookie_json_str:
+        try:
+            data = json.loads(cookie_json_str)
+            cookies = data.get('cookies', {})
+            mid = data.get('mid', '')
+            print(f"✓ 已从环境变量加载Cookie (UID: {mid})")
+            return cookies, mid
+        except Exception as e:
+            print(f"✗ 解析环境变量Cookie失败: {e}")
+    
+    # 方式2: 从cookie.json读取（本地运行）
     if not os.path.exists(COOKIE_FILE):
-        print("✗ cookie.json 不存在")
-        print("  请先运行: python login.py")
+        print("✗ 未找到Cookie")
+        print("  GitHub Actions: 请在 Settings → Secrets 中设置 BILIBILI_COOKIE")
+        print("  本地运行: 请先运行 python login.py")
         return None, None
     
     try:
@@ -37,7 +54,7 @@ def load_cookie():
         cookies = data.get('cookies', {})
         mid = data.get('mid', '')
         login_time = data.get('login_time', '未知')
-        print(f"✓ 已加载Cookie (UID: {mid}, 登录于: {login_time})")
+        print(f"✓ 已从cookie.json加载Cookie (UID: {mid}, 登录于: {login_time})")
         return cookies, mid
     except Exception as e:
         print(f"✗ 读取cookie.json失败: {e}")
@@ -195,12 +212,52 @@ def update_readme(data):
 
 **最后更新**: {data['update_time']}
 
-*数据每小时自动更新 · 仓库私有，仅自己可见*
+*数据每小时自动更新 · [查看可视化看板](index.html)*
 """
     
     with open(README_FILE, 'w', encoding='utf-8') as f:
         f.write(readme)
     print("✓ README.md 已更新")
+
+def update_data_json(data):
+    """更新data.json（前端页面读取）"""
+    with open(DATA_FILE, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+    print("✓ data.json 已更新")
+
+def update_history_json(data):
+    """更新history.json（追加历史记录）"""
+    history = []
+    if os.path.exists(HISTORY_FILE):
+        try:
+            with open(HISTORY_FILE, 'r', encoding='utf-8') as f:
+                history = json.load(f)
+        except:
+            history = []
+    
+    # 构造历史记录条目
+    record = {
+        'update_time': data['update_time'],
+        'timestamp': int(time.time()),
+        'fans': data['fans'],
+        'total_views': data['total_views'],
+        'total_likes': data['total_likes'],
+        'video_count': data['video_count'],
+    }
+    
+    # 避免重复（同一小时内只记录一次）
+    if history and history[-1].get('update_time') == record['update_time']:
+        history[-1] = record
+    else:
+        history.append(record)
+    
+    # 最多保留2000条记录
+    if len(history) > 2000:
+        history = history[-2000:]
+    
+    with open(HISTORY_FILE, 'w', encoding='utf-8') as f:
+        json.dump(history, f, ensure_ascii=False, indent=2)
+    print(f"✓ history.json 已更新 (共 {len(history)} 条记录)")
 
 # ============================================================
 # 主流程
@@ -231,7 +288,15 @@ def main():
     print(f"\n[更新README]")
     update_readme(data)
     
-    # 5. 打印摘要
+    # 5. 更新data.json（前端页面用）
+    print(f"\n[更新data.json]")
+    update_data_json(data)
+    
+    # 6. 更新history.json（前端页面用）
+    print(f"\n[更新history.json]")
+    update_history_json(data)
+    
+    # 7. 打印摘要
     print(f"\n{'=' * 50}")
     print(f"📊 数据摘要:")
     print(f"  UP主:   {data['name']}")
