@@ -17,19 +17,19 @@
 
 | 视频 | 播放 | 弹幕 | 评论 | 点赞 | 发布日期 |
 |------|------|------|------|------|----------|
-| [《凡人》银月演唱版【𝗛𝗶-𝗥𝗲𝘀】](https://www.bilibili.com/video/BV1LJHw69EcF) | 1,967 | 3 | 37 | 0 | 2026-10-24 |
+| [《凡人》银月演唱版【𝗛𝗶-𝗥𝗲𝘀】](https://www.bilibili.com/video/BV1LJHw69EcF) | 1,969 | 3 | 37 | 0 | 2026-10-24 |
 | [聊聊你不一定注意到的细节《凡人修仙传》195集解析](https://www.bilibili.com/video/BV1aeJq6VE5F) | 906 | 1 | 17 | 0 | 2026-10-17 |
-| [圣女白莲、白雕、黄灵鼎详解《凡人》194集解析](https://www.bilibili.com/video/BV1vfp76KE3g) | 971 | 1 | 27 | 0 | 2026-10-11 |
-| [《凡人修仙传》一共出现了多少个成语？  统计一下前189集](https://www.bilibili.com/video/BV1enYS6mEFz) | 4,041 | 12 | 105 | 0 | 2026-09-12 |
+| [圣女白莲、白雕、黄灵鼎详解《凡人》194集解析](https://www.bilibili.com/video/BV1vfp76KE3g) | 972 | 1 | 27 | 0 | 2026-10-11 |
+| [《凡人修仙传》一共出现了多少个成语？  统计一下前189集](https://www.bilibili.com/video/BV1enYS6mEFz) | 4,045 | 12 | 105 | 0 | 2026-09-12 |
 | [天哭如何确定是韩立放出神识《凡人》188集解析](https://www.bilibili.com/video/BV18Z8s6vEia) | 3.6万 | 55 | 333 | 0 | 2026-08-23 |
 | [忽闻君名至 恍忆孩时记《凡人》187集解析](https://www.bilibili.com/video/BV1Uebm6xEPb) | 9.0万 | 51 | 153 | 0 | 2026-08-15 |
 | [苟安难独善，唇亡必齿寒《凡人》186集解析](https://www.bilibili.com/video/BV1eAbU6iE9i) | 893 | 4 | 10 | 0 | 2026-08-15 |
 | [太上忘情解析！台阶长度设计以及韩立双手负后的真正理由！《凡人修仙传》1...](https://www.bilibili.com/video/BV1hPMU6VELp) | 2,399 | 20 | 53 | 0 | 2026-08-05 |
-| [火龙开团！令狐和解！《凡人修仙传》184逐帧解析](https://www.bilibili.com/video/BV13V3E6iEx6) | 2,190 | 13 | 92 | 0 | 2026-07-26 |
-| [月下锦帕予相思 银杏风畔诺归期《凡人》 183 集超细讲解](https://www.bilibili.com/video/BV1EogC6JEvx) | 4,233 | 74 | 175 | 0 | 2026-07-22 |
+| [火龙开团！令狐和解！《凡人修仙传》184逐帧解析](https://www.bilibili.com/video/BV13V3E6iEx6) | 2,191 | 13 | 92 | 0 | 2026-07-26 |
+| [月下锦帕予相思 银杏风畔诺归期《凡人》 183 集超细讲解](https://www.bilibili.com/video/BV1EogC6JEvx) | 4,235 | 74 | 175 | 0 | 2026-07-22 |
 
 ---
 
-**最后更新**: 2026-11-19 23:24:24
+**最后更新**: 2026-11-20 05:53:03
 
 *数据每小时自动更新 · [查看可视化看板](index.html)*
